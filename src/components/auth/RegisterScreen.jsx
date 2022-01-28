@@ -1,31 +1,68 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import validator from "validator";
+import { setError, removeError } from '../../actions/ui';
+
 import { useForm } from '../../hooks/useForm';
+
 
 
 export const RegisterScreen = () => {
 
+    const dispatch =useDispatch();
+    const {msgError} = useSelector(state=>state.ui);
+    console.log(msgError);
     const [values, handleInputChange] =useForm({
         name:"Jacob",
         email: "jacob_ico@outlook.com",
-        password: "123",
-        password2: "123",
+        password: "123456",
+        password2: "123456",
     })
-    const {name, email, password, password2} = values;
 
+    const {name, email, password, password2} = values;
+    
     const handleRegister =(e)=> {
         e.preventDefault();
+
+        if(isFormValid()){
+            console.log("Formulario correcto");
+        }
         
     }
 
     const isFormValid = ()=>{
-        
+
+        if(name.trim().length === 0){
+            dispatch(setError("name is requiered"));
+            return false;
+        }else if( !validator.isEmail(email) ){
+            dispatch(setError("not valid"));
+            return false;
+        }else if(password !== password2 || password.length <5){
+            dispatch(setError("password should be at least 6 characters and match each other"));
+            
+            return false;
+        }
+
+        dispatch(removeError());
+        return true;
     }
 
   return (
             <>
                 <h3 className="auth__title">Register</h3>
                 <form onSubmit={handleRegister}>
+
+                    {
+                        msgError && (
+                            <div className="auth__alert-error">
+                                {msgError}
+                            </div>
+                        )
+                    }
+                            
+                        
                     <input 
                         type="text" 
                         placeholder="Name"
